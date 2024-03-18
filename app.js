@@ -21,6 +21,7 @@ class App {
     // differentiate queries with $ sign means html elements
     // whereas no $ means data
     // references to elements
+    this.$formCloseButton = document.querySelector("#form-close-button");
     this.$notes = document.querySelector("#notes");
     this.$placeholder = document.querySelector("#placeholder");
     this.$form = document.querySelector("#form");
@@ -30,8 +31,6 @@ class App {
     // run this method when the app starts up
     this.addEventListeners();
   }
-
-  /* 1. feat: Expand and close notes(form) */
 
   addEventListeners() {
     // list for click event on the body
@@ -49,12 +48,25 @@ class App {
         this.addNote({ title, text });
       }
     });
+
+
+    // add event handler  for close button
+    this.$formCloseButton.addEventListener("click", (event) => {
+      event.stopPropagation(); // Stops the event from bubbling up or being captured further, prevent parent elements from executing an event when child el/ viceversa  event is executed
+      this.closeForm();
+    });
   }
 
   handleFormClick(event) {
     const isFormClicked = this.$form.contains(event.target); // contains returns true/false
+    const title = this.$noteTitle.value;
+    const text = this.$noteText.value;
+    const hasNote = title || text;
     if (isFormClicked) {
       this.openForm();
+    } else if (hasNote) {
+      //when either title/text is true, addNote() will invoke
+      this.addNote({ title, text });
     } else {
       this.closeForm();
     }
@@ -75,11 +87,11 @@ class App {
     this.$noteText.value = "";
   }
 
-  // add note functionality
-  addNote(note) {
+  // add note functionality, destructure prop
+  addNote({ title, text }) {
     const newNote = {
-      title: note.title,
-      text: note.text,
+      title,
+      text,
       color: "white",
       id: this.notes.length > 0 ? this.notes[this.notes.length - 1].id : 1,
     };

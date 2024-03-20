@@ -269,6 +269,7 @@ class App {
 
   displayNotes() {
     const hasNotes = this.notes.length > 0;
+
     this.$placeholder.style.display = hasNotes ? "none" : "flex";
 
     this.$notes.innerHTML = this.notes
@@ -281,12 +282,12 @@ class App {
           <div class="note-text">${note.text}</div>
           <div class="toolbar-container">
             <div class="toolbar">
-              <img class="toolbar-color" data-id="${
-                note.id
-              }" src="https://icon.now.sh/palette">
-              <img class="toolbar-delete" data-id="${
-                note.id
-              }" src="https://icon.now.sh/delete">
+            <i class="bi bi-palette toolbar-color"  style="font-size: 1.5rem" data-id="${
+              note.id
+            }"></i>
+            <i class="bi bi-trash toolbar-delete" style="font-size: 1.5rem" data-id="${
+              note.id
+            }"></i>
             </div>
           </div>
         </div>

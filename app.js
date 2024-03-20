@@ -26,13 +26,17 @@
   7. Deleting notes
     - create a click event listener for deleteNote()
     - within deleteNote(), filter the relevant data-id note out = deleting
-    
+  8. Storing notes within browser
+    - use localStorage to store notes array into string
+    - use localStorage to get existing notes data into array
+    - render notes data on initial load
  */
 
 class App {
   constructor() {
-    this.notes = []; // create an empty array to store submitted note objects
-    
+    // get from the localStorage whatever notes we stored and parse it back into an array
+    // if there is no notes, render an empty array
+    this.notes = JSON.parse(localStorage.getItem("notes")) || [];
     this.title = "";
     this.text = "";
     this.id = "";
@@ -59,6 +63,9 @@ class App {
 
     //tooltip el
     this.$colorTooltip = document.querySelector("#color-tooltip");
+
+    // on initial load, renders whatever notes we have on notes property in localStorage
+    this.render();
 
     // run this method when the app starts up
     this.addEventListeners();
@@ -206,8 +213,7 @@ class App {
     };
 
     this.notes = [...this.notes, newNote];
-    this.displayNotes();
-    console.log(this.notes);
+    this.render();
     this.closeForm();
   }
 
@@ -217,7 +223,7 @@ class App {
     this.notes = this.notes.map((note) =>
       note.id === Number(this.id) ? { ...note, title, text } : note
     );
-    this.displayNotes();
+    this.render();
   }
 
   // edit the color only and spread back all the other properties
@@ -225,7 +231,7 @@ class App {
     this.notes = this.notes.map((note) =>
       note.id === Number(this.id) ? { ...note, color } : note
     );
-    this.displayNotes();
+    this.render();
   }
 
   selectNote(event) {
@@ -245,11 +251,22 @@ class App {
     event.stopPropagation();
     if (!event.target.matches(".toolbar-delete")) return;
     const id = event.target.dataset.id;
-    console.log(id)
+    console.log(id);
     this.notes = this.notes.filter((note) => note.id !== Number(id));
+    this.render();
+  }
+
+  //  DRY using a function that invokes both functions together
+  render() {
+    this.saveNotes();
     this.displayNotes();
   }
- 
+
+  saveNotes() {
+    // always set using key value pair
+    localStorage.setItem("notes", JSON.stringify(this.notes));
+  }
+
   displayNotes() {
     const hasNotes = this.notes.length > 0;
     this.$placeholder.style.display = hasNotes ? "none" : "flex";

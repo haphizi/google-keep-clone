@@ -32,6 +32,7 @@
 class App {
   constructor() {
     this.notes = []; // create an empty array to store submitted note objects
+    
     this.title = "";
     this.text = "";
     this.id = "";
@@ -201,11 +202,12 @@ class App {
       title,
       text,
       color: "white",
-      id: this.notes.length > 0 ? this.notes[this.notes.length - 1].id : 1,
+      id: this.notes.length > 0 ? this.notes[this.notes.length - 1].id + 1 : 1,
     };
 
     this.notes = [...this.notes, newNote];
     this.displayNotes();
+    console.log(this.notes);
     this.closeForm();
   }
 
@@ -247,7 +249,7 @@ class App {
     this.notes = this.notes.filter((note) => note.id !== Number(id));
     this.displayNotes();
   }
-
+ 
   displayNotes() {
     const hasNotes = this.notes.length > 0;
     this.$placeholder.style.display = hasNotes ? "none" : "flex";

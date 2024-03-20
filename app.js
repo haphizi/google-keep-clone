@@ -23,6 +23,9 @@
     - within note, there should be a .toolbar-color icon
     - mouseover it to open tooltip, mouseout to close tooltip
     - click tooltip to change color, clicking the color would  get the    data-id from dataset prop and feed the color value back to the respective note.color
+  7. Deleting notes
+    - create a click event listener for deleteNote()
+    - within deleteNote(), filter the relevant data-id note out = deleting
     
  */
 
@@ -66,6 +69,7 @@ class App {
       this.handleFormClick(event);
       this.selectNote(event);
       this.openModal(event);
+      this.deleteNote(event);
     });
 
     // mouseover for opening palette color
@@ -152,6 +156,10 @@ class App {
   }
 
   openModal(event) {
+    //to ensure the openModal doesnt open when delete note el is clicked
+    if (event.target.matches(".toolbar-delete")) return;
+    if (event.target.matches(".toolbar-color")) return;
+
     if (event.target.closest(".note")) {
       this.$modal.classList.toggle("open-modal");
       this.$modalTitle.value = this.title;
@@ -230,6 +238,16 @@ class App {
     this.id = $selectedNote.dataset.id;
   }
 
+  deleteNote(event) {
+    // stop bubbling up from executing other events
+    event.stopPropagation();
+    if (!event.target.matches(".toolbar-delete")) return;
+    const id = event.target.dataset.id;
+    console.log(id)
+    this.notes = this.notes.filter((note) => note.id !== Number(id));
+    this.displayNotes();
+  }
+
   displayNotes() {
     const hasNotes = this.notes.length > 0;
     this.$placeholder.style.display = hasNotes ? "none" : "flex";
@@ -244,10 +262,12 @@ class App {
           <div class="note-text">${note.text}</div>
           <div class="toolbar-container">
             <div class="toolbar">
-              <img class="toolbar-color" data-id=${
+              <img class="toolbar-color" data-id="${
                 note.id
-              } src="https://icon.now.sh/palette">
-              <img class="toolbar-delete" src="https://icon.now.sh/delete">
+              }" src="https://icon.now.sh/palette">
+              <img class="toolbar-delete" data-id="${
+                note.id
+              }" src="https://icon.now.sh/delete">
             </div>
           </div>
         </div>

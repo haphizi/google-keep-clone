@@ -19,7 +19,11 @@
       - modal allows input changes for title/text
       - able to edit the values in modal and save it to display
       - able to close the modal using close modal button
-      
+  6. Steps to changing note color
+    - within note, there should be a .toolbar-color icon
+    - mouseover it to open tooltip, mouseout to close tooltip
+    - click tooltip to change color, clicking the color would  get the    data-id from dataset prop and feed the color value back to the respective note.color
+    
  */
 
 class App {
@@ -49,6 +53,9 @@ class App {
     this.$modalText = document.querySelector(".modal-text");
     this.$modalCloseButton = document.querySelector(".modal-close-button");
 
+    //tooltip el
+    this.$colorTooltip = document.querySelector("#color-tooltip");
+
     // run this method when the app starts up
     this.addEventListeners();
   }
@@ -59,6 +66,34 @@ class App {
       this.handleFormClick(event);
       this.selectNote(event);
       this.openModal(event);
+    });
+
+    // mouseover for opening palette color
+    document.body.addEventListener("mouseover", (event) => {
+      this.openTooltip(event);
+    });
+
+    // mouseout for closing palette color
+    document.body.addEventListener("mouseout", (event) => {
+      this.closeTooltip(event);
+    });
+
+    // a normal function of this keyword refers to the tooltip itself unlike arrow function
+    this.$colorTooltip.addEventListener("mouseover", function () {
+      this.style.display = "flex";
+    });
+
+    this.$colorTooltip.addEventListener("mouseout", function () {
+      this.style.display = "none";
+    });
+
+    // create a click event for each color to allow editing
+    this.$colorTooltip.addEventListener("click", (event) => {
+      const color = event.target.dataset.color;
+      console.log(color);
+      if (color) {
+        this.editNoteColor(color);
+      }
     });
 
     this.$form.addEventListener("submit", (event) => {
@@ -131,6 +166,27 @@ class App {
     this.$modal.classList.toggle("open-modal");
   }
 
+  openTooltip(event) {
+    // only to hover over toolbar-color class, else return nothing.
+    if (!event.target.matches(".toolbar-color")) return;
+
+    this.id = event.target.dataset.id;
+    // get specific info about where the user will be hovering over
+    const noteCoords = event.target.getBoundingClientRect();
+    // take the left coordinates plus how much the user scroll in the x direction
+    const horizontal = noteCoords.left + window.scrollX;
+    //take the top coordinates plus how much the user scroll in the y direction
+    const vertical = noteCoords.top + window.scrollY;
+
+    this.$colorTooltip.style.transform = `translate(${horizontal}px, ${vertical}px)`;
+    this.$colorTooltip.style.display = "flex";
+  }
+
+  closeTooltip(event) {
+    if (!event.target.matches(".toolbar-color")) return;
+    this.$colorTooltip.style.display = "none";
+  }
+
   // add note functionality, destructure prop
   addNote({ title, text }) {
     const newNote = {
@@ -140,7 +196,6 @@ class App {
       id: this.notes.length > 0 ? this.notes[this.notes.length - 1].id : 1,
     };
 
-    //
     this.notes = [...this.notes, newNote];
     this.displayNotes();
     this.closeForm();
@@ -149,9 +204,16 @@ class App {
   editNote() {
     const title = this.$modalTitle.value;
     const text = this.$modalText.value;
-    //return back the array
     this.notes = this.notes.map((note) =>
       note.id === Number(this.id) ? { ...note, title, text } : note
+    );
+    this.displayNotes();
+  }
+
+  // edit the color only and spread back all the other properties
+  editNoteColor(color) {
+    this.notes = this.notes.map((note) =>
+      note.id === Number(this.id) ? { ...note, color } : note
     );
     this.displayNotes();
   }
@@ -159,7 +221,7 @@ class App {
   selectNote(event) {
     // closest method will get the nearest node matching the class
     const $selectedNote = event.target.closest(".note");
-    if(!$selectedNote) return;
+    if (!$selectedNote) return;
 
     // destructure
     const [$noteTitle, $noteText] = $selectedNote.children;
@@ -169,25 +231,27 @@ class App {
   }
 
   displayNotes() {
-    // check if notes array has el
     const hasNotes = this.notes.length > 0;
     this.$placeholder.style.display = hasNotes ? "none" : "flex";
 
     this.$notes.innerHTML = this.notes
       .map(
-        (note) =>
-          `
-      <div style="background: ${note.color};" class="note" data-id="${note.id}">
-        <div class="${note.title && "note-title"}">${note.title}</div>
-        <div class="note-text">${note.text}</div>
-        <div class="toolbar-container">
-          <div class="toolbar">
-            <img class="toolbar-color" src="https://icon.now.sh/palette">
-            <img class="toolbar-delete" src="https://icon.now.sh/delete">
+        (note) => `
+        <div style="background: ${note.color};" class="note" data-id="${
+          note.id
+        }">
+          <div class="${note.title && "note-title"}">${note.title}</div>
+          <div class="note-text">${note.text}</div>
+          <div class="toolbar-container">
+            <div class="toolbar">
+              <img class="toolbar-color" data-id=${
+                note.id
+              } src="https://icon.now.sh/palette">
+              <img class="toolbar-delete" src="https://icon.now.sh/delete">
+            </div>
           </div>
         </div>
-      </div>
-      `
+     `
       )
       .join("");
   }

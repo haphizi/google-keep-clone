@@ -188,6 +188,7 @@ class App {
 
     this.id = event.target.dataset.id;
     // get specific info about where the user will be hovering over
+    //returns a DOMRect object about the size of the targeted element and its position relative to the viewport
     const noteCoords = event.target.getBoundingClientRect();
     // take the left coordinates plus how much the user scroll in the x direction
     const horizontal = noteCoords.left + window.scrollX;
